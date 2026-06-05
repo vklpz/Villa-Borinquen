@@ -1,0 +1,457 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo Emprendimientos Villa Borinquen</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f6f1ea;
+  color:#2f2a26;
+  padding:18px;
+}
+
+header{
+  background:#6d5a4b;
+  color:white;
+  padding:28px 18px;
+  border-radius:22px;
+  text-align:center;
+  margin-bottom:20px;
+}
+
+header h1{margin:0 0 8px;font-size:28px;}
+header p{margin:0;font-size:15px;}
+
+input,select{
+  width:100%;
+  padding:14px;
+  margin-bottom:10px;
+  border-radius:14px;
+  border:1px solid #d4c8bb;
+  font-size:16px;
+  box-sizing:border-box;
+}
+
+.filtros{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  margin-bottom:18px;
+}
+
+.filtros button{
+  border:none;
+  padding:11px 16px;
+  border-radius:24px;
+  background:white;
+  font-weight:bold;
+  color:#4b3f35;
+  white-space:nowrap;
+  cursor:pointer;
+}
+
+.filtros button.activo{
+  background:#4b3f35;
+  color:white;
+}
+
+#contador{
+  color:#6f6258;
+  font-size:14px;
+  margin-bottom:14px;
+}
+
+.catalogo{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(270px,1fr));
+  gap:16px;
+}
+
+.card{
+  background:white;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 4px 14px rgba(0,0,0,0.08);
+}
+
+.carousel{
+  position:relative;
+  width:100%;
+  height:180px;
+  background:#eee;
+  overflow:hidden;
+}
+
+.carousel img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+  display:block;
+}
+
+.sin-imagen{
+  height:180px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  box-sizing:border-box;
+  text-align:center;
+  background:#eadfce;
+  color:#4b3f35;
+  font-weight:bold;
+}
+
+.flecha{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  border:none;
+  background:rgba(0,0,0,0.45);
+  color:white;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  font-size:24px;
+  cursor:pointer;
+}
+
+.flecha.izquierda{left:10px;}
+.flecha.derecha{right:10px;}
+
+.puntitos{
+  position:absolute;
+  bottom:8px;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:center;
+  gap:6px;
+}
+
+.punto{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  border:none;
+  background:rgba(255,255,255,0.55);
+  cursor:pointer;
+  padding:0;
+}
+
+.punto.activo{
+  background:white;
+  width:18px;
+  border-radius:10px;
+}
+
+.contenido{
+  padding:18px;
+}
+
+.categoria{
+  display:inline-block;
+  background:#eadfce;
+  color:#4b3f35;
+  padding:6px 11px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:bold;
+  margin-bottom:10px;
+}
+
+.card h2{
+  margin:0 0 6px;
+  font-size:21px;
+}
+
+.vecino{
+  color:#777;
+  font-size:14px;
+  margin-bottom:10px;
+}
+
+.descripcion{
+  font-size:15px;
+  line-height:1.45;
+  margin-bottom:14px;
+}
+
+.whatsapp{
+  display:block;
+  text-align:center;
+  background:#25D366;
+  color:white;
+  text-decoration:none;
+  padding:12px;
+  border-radius:12px;
+  font-weight:bold;
+}
+
+.vacio{
+  display:none;
+  text-align:center;
+  color:#777;
+  margin-top:25px;
+}
+
+footer{
+  text-align:center;
+  margin-top:35px;
+  color:#777;
+  font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Catálogo Vecinal Villa Borinquen</h1>
+  <p>Servicios, productos y emprendimientos de vecinos y vecinas del sector</p>
+</header>
+
+<input type="text" id="buscar" placeholder="Buscar: miel, pasteles, fletes, poleras, impresiones...">
+
+<select id="categoria">
+  <option value="Todos">Todas las categorías</option>
+  <option value="Alimentos">Alimentos</option>
+  <option value="Impresiones">Impresiones</option>
+  <option value="Juguetería">Juguetería</option>
+  <option value="Vestuario">Vestuario</option>
+  <option value="Traslados">Traslados</option>
+  <option value="Plantas">Plantas</option>
+</select>
+
+<div class="filtros">
+  <button class="activo" onclick="filtrarCategoria('Todos', this)">Todos</button>
+  <button onclick="filtrarCategoria('Alimentos', this)">Alimentos</button>
+  <button onclick="filtrarCategoria('Impresiones', this)">Impresiones</button>
+  <button onclick="filtrarCategoria('Juguetería', this)">Juguetería</button>
+  <button onclick="filtrarCategoria('Vestuario', this)">Vestuario</button>
+  <button onclick="filtrarCategoria('Traslados', this)">Traslados</button>
+  <button onclick="filtrarCategoria('Plantas', this)">Plantas</button>
+</div>
+
+<p id="contador"></p>
+
+<main class="catalogo" id="catalogo"></main>
+
+<p class="vacio" id="vacio">No se encontraron emprendimientos con esa búsqueda.</p>
+
+<footer>
+  Catálogo comunitario Villa Borinquen
+</footer>
+
+<script>
+const emprendimientos = [
+  {
+    negocio: "Miel Susana",
+    vecino: "Susana Torrealba",
+    categoria: "Alimentos",
+    productos: "Miel pura natural. Disponible en variedades multifloral y ulmo. Ideal para consumo diario, infusiones, repostería y regalos.",
+    whatsapp: "56982919271",
+    imagenes: [
+      "imagenes/susana-miel.png"
+    ]
+  },
+  {
+    negocio: "Miel Erika",
+    vecino: "Erika Acuña",
+    categoria: "Alimentos",
+    productos: "Venta de miel natural para el hogar. Consulta por disponibilidad, formato y retiro o entrega dentro del sector.",
+    whatsapp: "56949031685",
+    imagenes: []
+  },
+  {
+    negocio: "Andypanda Impresiones",
+    vecino: "Andrea",
+    categoria: "Impresiones",
+    productos: "Impresiones y productos personalizados para regalos, recuerdos, actividades escolares, celebraciones y pedidos especiales.",
+    whatsapp: "56942921984",
+    imagenes: []
+  },
+  {
+    negocio: "Delicias del Sur",
+    vecino: "Romina",
+    categoria: "Alimentos",
+    productos: "Pasteles, pan amasado y preparaciones caseras por encargo. Una alternativa cercana para colaciones, once y celebraciones familiares.",
+    whatsapp: "56962931450",
+    imagenes: []
+  },
+  {
+    negocio: "Chimbu Tienda",
+    vecino: "Carla Olivares",
+    categoria: "Juguetería",
+    productos: "Juguetes, mochilas y productos infantiles. Opciones para regalos, útiles de temporada y compras para niños y niñas.",
+    whatsapp: "56978446763",
+    imagenes: [
+      "imagenes/carla-juguetes.png"
+    ]
+  },
+  {
+    negocio: "Poleras Estampadas",
+    vecino: "German",
+    categoria: "Vestuario",
+    productos: "Poleras estampadas y prendas personalizadas para regalos, eventos, grupos familiares, equipos y pedidos especiales.",
+    whatsapp: "56952683189",
+    imagenes: []
+  },
+  {
+    negocio: "Uber y Fletes",
+    vecino: "Nelson Ramírez Irribarra",
+    categoria: "Traslados",
+    productos: "Traslados de pasajeros, compras y encomiendas, fletes pequeños y medianos, mudanzas y transporte de carga. Atiende en Viña del Mar y Valparaíso.",
+    whatsapp: "56965001049",
+    imagenes: [
+      "imagenes/nelson-uber.png"
+    ]
+  },
+  {
+    negocio: "Plantas",
+    vecino: "Tere",
+    categoria: "Plantas",
+    productos: "Plantas, tierra y maceteros para el hogar, jardín, terraza o regalo. Consulta por disponibilidad y variedades.",
+    whatsapp: "56995494137",
+    imagenes: [
+      "imagenes/tere-plantas-2.png",
+      "imagenes/tere-plantas-3.png"
+    ]
+  }
+];
+
+let categoriaActual = "Todos";
+let imagenActual = {};
+
+const catalogo = document.getElementById("catalogo");
+const buscar = document.getElementById("buscar");
+const categoria = document.getElementById("categoria");
+const contador = document.getElementById("contador");
+const vacio = document.getElementById("vacio");
+
+function limpiarTexto(texto){
+  return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+}
+
+function mostrarEmprendimientos(){
+  const texto = limpiarTexto(buscar.value);
+
+  const resultados = emprendimientos
+    .map((e, index) => ({...e, indexOriginal:index}))
+    .filter(e => {
+      const contenido = limpiarTexto(
+        e.negocio + " " + e.vecino + " " + e.categoria + " " + e.productos
+      );
+
+      return contenido.includes(texto) &&
+      (categoriaActual === "Todos" || e.categoria === categoriaActual);
+    });
+
+  catalogo.innerHTML = "";
+
+  resultados.forEach(e => {
+    if(imagenActual[e.indexOriginal] === undefined){
+      imagenActual[e.indexOriginal] = 0;
+    }
+
+    const mensaje = encodeURIComponent(
+      `Hola ${e.vecino}, vi tu emprendimiento "${e.negocio}" en el catálogo vecinal de Villa Borinquen y me gustaría consultar.`
+    );
+
+    const tieneImagen = e.imagenes.length > 0;
+    const tieneVarias = e.imagenes.length > 1;
+
+    const flechas = tieneVarias ? `
+      <button class="flecha izquierda" onclick="cambiarImagen(${e.indexOriginal}, -1)">&lsaquo;</button>
+      <button class="flecha derecha" onclick="cambiarImagen(${e.indexOriginal}, 1)">&rsaquo;</button>
+    ` : "";
+
+    const puntitos = tieneVarias ? `
+      <div class="puntitos">
+        ${e.imagenes.map((img, i) => `
+          <button
+            class="punto ${i === imagenActual[e.indexOriginal] ? "activo" : ""}"
+            onclick="irAImagen(${e.indexOriginal}, ${i})">
+          </button>
+        `).join("")}
+      </div>
+    ` : "";
+
+    const imagen = tieneImagen ? `
+      <img id="img-${e.indexOriginal}" src="${e.imagenes[imagenActual[e.indexOriginal]]}" alt="${e.negocio}">
+    ` : `
+      <div class="sin-imagen">Imagen pendiente</div>
+    `;
+
+    catalogo.innerHTML += `
+      <article class="card">
+        <div class="carousel">
+          ${imagen}
+          ${flechas}
+          ${puntitos}
+        </div>
+
+        <div class="contenido">
+          <span class="categoria">${e.categoria}</span>
+          <h2>${e.negocio}</h2>
+          <p class="vecino">Vecino/a: ${e.vecino}</p>
+          <p class="descripcion">${e.productos}</p>
+          <a class="whatsapp" href="https://wa.me/${e.whatsapp}?text=${mensaje}" target="_blank">
+            Contactar por WhatsApp
+          </a>
+        </div>
+      </article>
+    `;
+  });
+
+  contador.textContent = `Mostrando ${resultados.length} de ${emprendimientos.length} emprendimientos`;
+  vacio.style.display = resultados.length === 0 ? "block" : "none";
+}
+
+function cambiarImagen(index, direccion){
+  const total = emprendimientos[index].imagenes.length;
+
+  imagenActual[index] += direccion;
+
+  if(imagenActual[index] < 0){
+    imagenActual[index] = total - 1;
+  }
+
+  if(imagenActual[index] >= total){
+    imagenActual[index] = 0;
+  }
+
+  mostrarEmprendimientos();
+}
+
+function irAImagen(index, numeroImagen){
+  imagenActual[index] = numeroImagen;
+  mostrarEmprendimientos();
+}
+
+function filtrarCategoria(nombreCategoria, boton){
+  categoriaActual = nombreCategoria;
+  categoria.value = nombreCategoria;
+
+  document.querySelectorAll(".filtros button").forEach(btn => btn.classList.remove("activo"));
+  boton.classList.add("activo");
+
+  mostrarEmprendimientos();
+}
+
+buscar.addEventListener("input", mostrarEmprendimientos);
+
+categoria.addEventListener("change", function(){
+  categoriaActual = this.value;
+  mostrarEmprendimientos();
+});
+
+mostrarEmprendimientos();
+</script>
+
+</body>
+</html>
